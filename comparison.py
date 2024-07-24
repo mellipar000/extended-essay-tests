@@ -41,8 +41,8 @@ model.fit(x_train2, y_train)
 y_pred_rf = model.predict(x_test2)
 
 # Printing the RandomForestClassifier performance metrics
-print('\nOverall Random Forest Accuracy:', accuracy_score(y_pred_rf, y_test))
-print('\nRandom Forest Classification Report:\n', classification_report(y_pred_rf, y_test))
+print('\nOverall Random Forest Accuracy:', accuracy_score(y_pred_rf, y_test) * 100, '%\n')
+print('Random Forest Classification Report:\n', classification_report(y_pred_rf, y_test))
 print('Random Forest Confusion Matrix:\n', confusion_matrix(y_pred_rf, y_test))
 
 # Creating an instance of the DecisionTreeClassifier
@@ -55,8 +55,8 @@ dtc.fit(x_train2, y_train)
 y_pred_dtc = dtc.predict(x_test2)
 
 # Printing the DecisionTreeClassifier performance metrics
-print('\nOverall Decision Tree Accuracy:', accuracy_score(y_pred_dtc, y_test))
-print('\nDecision Tree Classification Report:\n', classification_report(y_pred_dtc, y_test))
+print('\nOverall Decision Tree Accuracy:', accuracy_score(y_pred_dtc, y_test) * 100, '%\n')
+print('Decision Tree Classification Report:\n', classification_report(y_pred_dtc, y_test))
 print('Decision Tree Confusion Matrix:\n', confusion_matrix(y_pred_dtc, y_test))
 
 # Ending the program timer
