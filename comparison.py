@@ -6,6 +6,10 @@ import cv2
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 import time
+import ssl
+
+# Disabling SSL certificate verification (only leave this uncommented when on a school-managed device)
+ssl._create_default_https_context = ssl._create_unverified_context
 
 # Starting a program timer
 start_time = time.time()
