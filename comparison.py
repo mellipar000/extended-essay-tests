@@ -33,6 +33,87 @@ def has_run_before():
            f.write('This is a marker file to indicate that the program has run before.')
         return False
 
+# Function to prompt the user if they would like to attempt a quick execution of the program
+def quick_execution_prompt() -> str:
+  while True:
+    choice = input('Would you like to attempt a quick execution of the program? (y/n): ')
+    if (choice in ['y', 'n']):
+      return choice
+    else:
+      print('Invalid input. Please try again.')
+
+# Function to create a new directory to save the machine learning models
+def create_new_directory():
+  choice = 'n'
+  dir_end = input('Please enter the folder name where you would like to save the machine learning models: ')
+  save_dir = os.path.join(os.path.dirname(os.getcwd()), dir_end)
+  os.makedirs(save_dir)
+  return choice, save_dir
+
+# Function to unpack and normalize the CIFAR-10 dataset
+def unpack_and_normalize_data():
+  print('Downloading the CIFAR-10 dataset...')
+
+  # Unpacking the cifar10 dataset into two tuples (training images, training labels) and (testing images, testing labels)
+  (x_train, y_train), (x_test, y_test) = keras.datasets.cifar10.load_data()
+
+  print('Formatting the data...')
+
+  # Ensure pixel values are floats to support decimal division
+  x_train = x_train.astype('float32')
+  x_test = x_test.astype('float32')
+
+  # Normalization
+  x_train /= 255.0
+  x_test /= 255.0
+
+  # Reshaping the image arrays to 2d arrays since sklearn expects 2d arrays
+  nsamples, nx, ny, nrgb = x_train.shape
+  x_train2 = x_train.reshape((nsamples, nx*ny*nrgb))
+  nsamples, nx, ny, nrgb = x_test.shape
+  x_test2 = x_test.reshape((nsamples, nx*ny*nrgb))
+
+  # Reshaping the labels to 1d arrays since sklearn expects 1d arrays
+  y_train = y_train.ravel()
+  y_test = y_test.ravel()
+
+  return x_train2, y_train, x_test2, y_test
+
+# Function to ask the user for the directory where the machine learning models are saved
+def ask_directory():
+   while True:
+      directory = input('Please enter the folder name where you saved the machine learning models: (if you don\'t know, type "idk")')
+      full_directory = os.path.join(os.path.dirname(os.getcwd()), directory)
+      if (os.path.exists(full_directory)):
+        return full_directory
+      elif (directory == 'idk'):
+        return directory
+      else:
+        print('Invalid directory. Please try again.')
+        
+# Function to find the appropriate directory to save the machine learning models
+def find_directory(choice: str):
+  print('Finding appropriate directory')
+
+  # Paths to the machine learning models
+  save_dirs = {'School Laptop': '/Users/MELLIPAR000/Downloads/machine-learning-models/', 'PC': 'C:/Users/parke/Downloads/machine-learning-models/',
+               'Your Computer': 'Your_Path_Here'}
+  
+  # Path to the machine learning models - replace with your own path
+  if (platform.system() == 'Darwin' and os.path.exists(save_dirs['School Laptop'])):
+    save_dir = save_dirs['School Laptop']
+  elif (platform.system() == 'Windows' and os.path.exists(save_dirs['PC'])):
+     save_dir = save_dirs['PC']
+  elif (os.path.exists(save_dirs['Your Computer'])):
+     save_dir = save_dirs['Your Computer']
+  elif (choice == 'y'):
+     save_dir = ask_directory()
+     if (save_dir == 'idk'):
+        choice, save_dir = create_new_directory()
+  else:
+      choice, save_dir = create_new_directory()
+  return save_dir
+
 # Disabling SSL certificate verification (only leave this uncommented when on a school-managed device)
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -40,62 +121,22 @@ ssl._create_default_https_context = ssl._create_unverified_context
 if __name__ == '__main__':
 
     # Getting the current path
-    current_path = os.path.dirname(os.path.realpath(__file__))
+    current_path = os.getcwd()
 
     # Asking the user if they would like to attempt a quick execution of the program if they have run the program before
     if (has_run_before()):
-       while True:
-        choice = input('Would you like to attempt a quick execution of the program? (y/n): ')
-        if (choice in ['y', 'n']):
-            break
-        else:
-            print('Invalid input. Please try again.')
+      choice = quick_execution_prompt()
+      save_dir = find_directory(choice)
     else:
-       choice = 'n'
-       dir_end = input('Please enter the folder name where you would like to save the machine learning models: ')
-       save_dir = os.path.join(os.path.dirname(current_path), dir_end)
-       os.makedirs(save_dir)
+      choice, save_dir = create_new_directory()
   
     # Starting a program timer
     start_time = time.time()
 
-    print('Downloading the CIFAR-10 dataset...')
-
-    # Unpacking the cifar10 dataset into two tuples (training images, training labels) and (testing images, testing labels)
-    (x_train, y_train), (x_test, y_test) = keras.datasets.cifar10.load_data()
-
-    print('Formatting the data...')
-
-    # Ensure pixel values are floats to support decimal division
-    x_train = x_train.astype('float32')
-    x_test = x_test.astype('float32')
-
-    # Normalization
-    x_train /= 255.0
-    x_test /= 255.0
-
-    # Reshaping the image arrays to 2d arrays since sklearn expects 2d arrays
-    nsamples, nx, ny, nrgb = x_train.shape
-    x_train2 = x_train.reshape((nsamples, nx*ny*nrgb))
-    nsamples, nx, ny, nrgb = x_test.shape
-    x_test2 = x_test.reshape((nsamples, nx*ny*nrgb))
-
-    # Reshaping the labels to 1d arrays since sklearn expects 1d arrays
-    y_train = y_train.ravel()
-    y_test = y_test.ravel()
-
-    print('Finding appropriate directory')
-
-    # Paths to the machine learning models
-    save_dirs = {'School Laptop': '/Users/MELLIPAR000/Downloads/machine-learning-models/', 'PC': 'C:/Users/parke/Downloads/machine-learning-models/'}
-  
-    # Path to the machine learning models - replace with your own path
-    if (platform.system() == 'Darwin' and os.path.exists(save_dirs['School Laptop'])):
-      save_dir = save_dirs['School Laptop']
-    elif (platform.system() == 'Windows' and os.path.exists(save_dirs['PC'])):
-       save_dir = save_dirs['PC']
+    # Unpacking and normalizing the data
+    x_train, y_train, x_test, y_test = unpack_and_normalize_data()
       
-      # Path to the random forest model and training time
+    # Path to the random forest model and training time
     rf_path = os.path.join(save_dir, 'random_forest_model.joblib')
     rf_training_time_path = os.path.join(save_dir, 'random_forest_training_time.txt')
     rf_training_memory_path = os.path.join(save_dir, 'random_forest_training_memory.txt')
@@ -127,7 +168,7 @@ if __name__ == '__main__':
         rf_train_start_time = time.time()
 
         # Training the RandomForestClassifier and measuring memory usage
-        rf_training_memory = memory_usage((train_model, (rf, x_train2, y_train)), max_usage=True)
+        rf_training_memory = memory_usage((train_model, (rf, x_train, y_train)), max_usage=True)
     
         # Ending the RandomForestClassifier training timer
         rf_train_time = time.time() - rf_train_start_time
@@ -149,13 +190,13 @@ if __name__ == '__main__':
     rf_prediction_start_time = time.time()
 
     # Predicting the test set
-    y_pred_rf = model_predict(rf, x_test2)
+    y_pred_rf = model_predict(rf, x_test)
 
     # Ending the RandomForestClassifier prediction timer
     rf_prediction_end_time = time.time()
 
     # Measuring memory usage for the prediction
-    rf_prediction_memory = memory_usage((model_predict, (rf, x_test2)), max_usage=True)
+    rf_prediction_memory = memory_usage((model_predict, (rf, x_test)), max_usage=True)
 
     # Printing the RandomForestClassifier performance metrics
     print('\nOverall Random Forest Accuracy:', accuracy_score(y_pred_rf, y_test) * 100, '%\n')
@@ -198,7 +239,7 @@ if __name__ == '__main__':
         dtc_train_start_time = time.time()
      
         # Training the DecisionTreeClassifier and measuring memory usage
-        dtc_training_memory = memory_usage((train_model, (dtc, x_train2, y_train)), max_usage=True)
+        dtc_training_memory = memory_usage((train_model, (dtc, x_train, y_train)), max_usage=True)
      
         # Ending the DecisionTreeClassifier training timer
         dtc_train_time = time.time() - dtc_train_start_time
@@ -220,13 +261,13 @@ if __name__ == '__main__':
     dtc_prediction_start_time = time.time()
 
     # Predicting the test set
-    y_pred_dtc = model_predict(dtc, x_test2)
+    y_pred_dtc = model_predict(dtc, x_test)
 
     # Ending the DecisionTreeClassifier prediction timer
     dtc_prediction_end_time = time.time()
 
     # Measuring memory usage for the prediction
-    dtc_prediction_memory = memory_usage((model_predict, (dtc, x_test2)), max_usage=True)
+    dtc_prediction_memory = memory_usage((model_predict, (dtc, x_test)), max_usage=True)
 
     # Printing the DecisionTreeClassifier performance metrics
     print('\nOverall Decision Tree Accuracy:', accuracy_score(y_pred_dtc, y_test) * 100, '%\n')
