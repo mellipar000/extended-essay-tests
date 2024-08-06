@@ -69,9 +69,9 @@ def unpack_and_normalize_data():
 
   # Reshaping the image arrays to 2d arrays since sklearn expects 2d arrays
   nsamples, nx, ny, nrgb = x_train.shape
-  x_train2 = x_train.reshape((nsamples, nx*ny*nrgb))
+  x_train2 = x_train.reshape((nsamples, nx * ny * nrgb))
   nsamples, nx, ny, nrgb = x_test.shape
-  x_test2 = x_test.reshape((nsamples, nx*ny*nrgb))
+  x_test2 = x_test.reshape((nsamples, nx * ny * nrgb))
 
   # Reshaping the labels to 1d arrays since sklearn expects 1d arrays
   y_train = y_train.ravel()
@@ -82,7 +82,7 @@ def unpack_and_normalize_data():
 # Function to ask the user for the directory where the machine learning models are saved
 def ask_directory():
    while True:
-      directory = input('Please enter the folder name where you saved the machine learning models: (if you don\'t know, type "idk")')
+      directory = input('Please enter the folder name where you saved the machine learning models: (if you don\'t know, type "idk"): ')
       full_directory = os.path.join(os.path.dirname(os.getcwd()), directory)
       if (os.path.exists(full_directory)):
         return full_directory
@@ -119,9 +119,6 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 # In place to prevent multiprocessing errors due to the memory profiler
 if __name__ == '__main__':
-
-    # Getting the current path
-    current_path = os.getcwd()
 
     # Asking the user if they would like to attempt a quick execution of the program if they have run the program before
     if (has_run_before()):
