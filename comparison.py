@@ -199,10 +199,8 @@ if __name__ == "__main__":
 
         print("Logging the Random Forest training memory usage...")
 
-        # Measuring memory usage
-        rf_training_memory = memory_usage(
-            (train_model, (rf, x_train, y_train)), max_usage=True
-        )
+        # Measuring memory usage in MiB and converting to MB
+        rf_training_memory = memory_usage((train_model, (rf, x_train, y_train)), max_usage=True) * 1.04858
 
         # Saving the RandomForestClassifier model
         joblib.dump(rf, rf_path)
@@ -215,6 +213,9 @@ if __name__ == "__main__":
         with open(rf_training_memory_path, "w") as f:
             f.write(str(rf_training_memory))
 
+    # Getting the random forest model size
+    rf_model_size = os.path.getsize(rf_path) / (1024 * 1024)
+
     print("Evaluating the Random Forest model...")
 
     # Starting a timer for the RandomForestClassifier prediction
@@ -226,33 +227,23 @@ if __name__ == "__main__":
     # Ending the RandomForestClassifier prediction timer
     rf_prediction_end_time = time.time()
 
-    # Measuring memory usage for the prediction
-    rf_prediction_memory = memory_usage((model_predict, (rf, x_test)), max_usage=True)
+    # Measuring memory usage for the prediction in MiB and converting to MB
+    rf_prediction_memory = memory_usage((model_predict, (rf, x_test)), max_usage=True) * 1.04858
 
     # Printing the RandomForestClassifier performance metrics
-    print(
-        "\nOverall Random Forest Accuracy:",
-        accuracy_score(y_pred_rf, y_test) * 100,
-        "%\n",
-    )
-    print(
-        "Random Forest Classification Report:\n",
-        classification_report(y_pred_rf, y_test),
-    )
+    print("\nOverall Random Forest Accuracy:", round(accuracy_score(y_pred_rf, y_test) * 100, 2), "%\n",)
+    print("Random Forest Classification Report:\n", classification_report(y_pred_rf, y_test),)
     print("Random Forest Confusion Matrix:\n", confusion_matrix(y_pred_rf, y_test))
-    print(f"\nRandom Forest Training Time: {rf_train_time} seconds")
-    print(
-        f"Random forest Prediction Time: {rf_prediction_end_time - rf_prediction_start_time} seconds"
-    )
-    print(f"Random Forest Training Memory: {rf_training_memory} Mib")
-    print(f"Random Forest Prediction Memory: {rf_prediction_memory} Mib")
+    print(f"\nRandom Forest Training Time: {round(rf_train_time, 2)} seconds")
+    print(f"Random forest Prediction Time: {round((rf_prediction_end_time - rf_prediction_start_time) * 1000, 2)} milliseconds")
+    print(f"Random Forest Training Memory: {round(rf_training_memory, 2)} Mb")
+    print(f"Random Forest Prediction Memory: {round(rf_prediction_memory, 2)} Mb")
+    print(f"Random Forest Model Size: {round(rf_model_size, 2)} Mb")
 
     # Path to the decision tree model
     dtc_path = os.path.join(save_dir, "decision_tree_model.joblib")
     dtc_training_time_path = os.path.join(save_dir, "decision_tree_training_time.txt")
-    dtc_training_memory_path = os.path.join(
-        save_dir, "decision_tree_training_memory.txt"
-    )
+    dtc_training_memory_path = os.path.join(save_dir, "decision_tree_training_memory.txt")
 
     # Checking if the decision tree model already exists and if the user wants to use it
     if (
@@ -292,10 +283,8 @@ if __name__ == "__main__":
 
         print("Logging the Decision Tree training memory usage...")
 
-        # Measuring memory usage
-        dtc_training_memory = memory_usage(
-            (train_model, (dtc, x_train, y_train)), max_usage = True
-        )
+        # Measuring memory usage in MiB and converting to MB
+        dtc_training_memory = memory_usage((train_model, (dtc, x_train, y_train)), max_usage = True) * 1.04858
 
         # Saving the DecisionTreeClassifier model
         joblib.dump(dtc, dtc_path)
@@ -308,6 +297,9 @@ if __name__ == "__main__":
         with open(dtc_training_memory_path, "w") as f:
             f.write(str(dtc_training_memory))
 
+    # Getting the random forest model size
+    dtc_model_size = os.path.getsize(dtc_path) / (1024 * 1024)
+
     print("Evaluating the Decision Tree model...")
 
     # Starting a timer for the DecisionTreeClassifier prediction
@@ -319,26 +311,18 @@ if __name__ == "__main__":
     # Ending the DecisionTreeClassifier prediction timer
     dtc_prediction_end_time = time.time()
 
-    # Measuring memory usage for the prediction
-    dtc_prediction_memory = memory_usage((model_predict, (dtc, x_test)), max_usage = True)
+    # Measuring memory usage for the prediction in MiB and converting to MB
+    dtc_prediction_memory = memory_usage((model_predict, (dtc, x_test)), max_usage = True) * 1.04858
 
     # Printing the DecisionTreeClassifier performance metrics
-    print(
-        "\nOverall Decision Tree Accuracy:",
-        accuracy_score(y_pred_dtc, y_test) * 100,
-        "%\n",
-    )
-    print(
-        "Decision Tree Classification Report:\n",
-        classification_report(y_pred_dtc, y_test),
-    )
+    print("\nOverall Decision Tree Accuracy:", round(accuracy_score(y_pred_dtc, y_test) * 100, 2), "%\n")
+    print("Decision Tree Classification Report:\n", classification_report(y_pred_dtc, y_test))
     print("Decision Tree Confusion Matrix:\n", confusion_matrix(y_pred_dtc, y_test))
-    print(f"\nDecision Tree Training Time: {dtc_train_time} seconds")
-    print(
-        f"Decision Tree Prediction Time: {dtc_prediction_end_time - dtc_prediction_start_time} seconds"
-    )
-    print(f"Decision Tree Training Memory: {dtc_training_memory} Mib")
-    print(f"Decision Tree Prediction Memory: {dtc_prediction_memory} Mib")
+    print(f"\nDecision Tree Training Time: {round(dtc_train_time, 2)} seconds")
+    print(f"Decision Tree Prediction Time: {round((dtc_prediction_end_time - dtc_prediction_start_time) * 1000, 2)} milliseconds")
+    print(f"Decision Tree Model Size: {round(dtc_model_size, 2)} Mb")
+    print(f"Decision Tree Training Memory: {round(dtc_training_memory, 2)} Mb")
+    print(f"Decision Tree Prediction Memory: {round(dtc_prediction_memory, 2)} Mb")
 
     # Ending the program timer
     end_time = time.time()
