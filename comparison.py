@@ -133,6 +133,28 @@ def find_directory(choice: str):
         choice, save_dir = create_new_directory()
     return save_dir
 
+# Function to create a bar graph
+def create_bar_graph(ylabel, values, units, fontsize = 'large'):
+    # Using the global variable num_plots to keep track of the number of subplots
+    global num_plots
+
+    # Creating a subplot for the bar graph
+    plt.subplot(2, 3, num_plots)
+
+    # Creating the bar graph
+    plt.bar(0, values[0], 0.9)
+    plt.bar(1, values[1], 0.9)
+    plt.xlabel("Models")
+    plt.ylabel(ylabel)
+    plt.title(ylabel + " vs. Models")
+    plt.xticks([0, 1], ["Random Forest", "Decision Tree"])
+
+    # Annotating the bars with the values
+    for index, value in enumerate(values):
+        plt.text(index, value / 2, str(round(value, 2)) + ' ' + units, ha = 'center', va = 'bottom', fontsize = fontsize, fontweight = 'bold')
+    
+    # Incrementing the number of subplots
+    num_plots += 1
 
 # Disabling SSL certificate verification (only leave this uncommented when on a school-managed device)
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -324,8 +346,35 @@ if __name__ == "__main__":
     print(f"Decision Tree Training Memory: {round(dtc_training_memory, 2)} Mb")
     print(f"Decision Tree Prediction Memory: {round(dtc_prediction_memory, 2)} Mb")
 
+    # Creating lists to store the model sizes, training times, prediction accuracies, predictions per second, training memories, and prediction memories
+    model_sizes = [rf_model_size, dtc_model_size]
+    training_times = [rf_train_time, dtc_train_time]
+    prediction_accuracies = [accuracy_score(y_pred_rf, y_test) * 100, accuracy_score(y_pred_dtc, y_test) * 100]
+    prediction_times = [rf_prediction_end_time - rf_prediction_start_time, dtc_prediction_end_time - dtc_prediction_start_time]
+    predictions_per_sec = [10 / i for i in prediction_times]
+    training_memories = [rf_training_memory, dtc_training_memory]
+    prediction_memories = [rf_prediction_memory, dtc_prediction_memory]
+
     # Ending the program timer
     end_time = time.time()
 
     # Calculating and printing the execution time
     print(f"\nExecution Time: {end_time - start_time} seconds")
+
+    # Creating a figure to display the bar graphs
+    plt.figure()
+    num_plots = 1
+
+    # Creating bar graphs for the model sizes, training times, prediction accuracies, predictions per second, training memories, and prediction memories
+    create_bar_graph("Model Size (MB)", model_sizes, 'MB')
+    create_bar_graph("Training Time (seconds)", training_times, 'sec')
+    create_bar_graph("Prediction Accuracy (%)", prediction_accuracies, '%')
+    create_bar_graph("# Predictions Per Second (in thousands)", predictions_per_sec, '* 10^3 pps', 'medium')
+    create_bar_graph("Training Memory (MB)", training_memories, 'MB')
+    create_bar_graph("Prediction Memory (MB)", prediction_memories, 'MB')
+
+    # Adjusting the spacing between the subplots
+    plt.subplots_adjust(hspace = 0.3, wspace = 0.3)
+
+    # Displaying the bar graphs
+    plt.show()
