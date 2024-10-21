@@ -4,6 +4,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import GridSearchCV
 from sklearn import tree
 import time
 import ssl
@@ -173,6 +174,8 @@ ssl._create_default_https_context = ssl._create_unverified_context
 # In place to prevent multiprocessing errors due to the memory profiler
 if __name__ == "__main__":
 
+    param_grid = {'max_depth': [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]}
+
     # Asking the user if they would like to attempt a quick execution of the program if they have run the program before
     if has_run_before():
         choice = quick_execution_prompt()
@@ -219,16 +222,20 @@ if __name__ == "__main__":
         print("Training the Random Forest model...")
 
         # Creating an instance of the RandomForestClassifier
-        rf = RandomForestClassifier(n_jobs=-1)
+        rf = RandomForestClassifier() #n_jobs = -1
+        grid_search_rf = GridSearchCV(rf, param_grid, cv = 5, n_jobs = -1)
 
         # Starting a timer for the RandomForestClassifier training
         rf_train_start_time = time.time()
 
         # Training the RandomForestClassifier
-        train_model(rf, x_train, y_train)
+        train_model(grid_search_rf, x_train, y_train)
 
         # Ending the RandomForestClassifier training timer
         rf_train_time = time.time() - rf_train_start_time
+
+        best_depth_rf = grid_search_rf.best_params_['max_depth']
+        print(f"Optimal depth for Random Forest: {best_depth_rf}")
 
         print("Logging the Random Forest training memory usage...")
 
@@ -307,14 +314,18 @@ if __name__ == "__main__":
 
         # Creating an instance of the DecisionTreeClassifier
         dtc = DecisionTreeClassifier()
+        grid_search_dtc = GridSearchCV(dtc, param_grid, cv = 5, n_jobs = -1)
 
         # Starting a timer for the DecisionTreeClassifier training
         dtc_train_start_time = time.time()
 
-        train_model(dtc, x_train, y_train)
+        train_model(grid_search_dtc, x_train, y_train)
 
         # Ending the DecisionTreeClassifier training timer
         dtc_train_time = time.time() - dtc_train_start_time
+
+        best_depth_dtc = grid_search_dtc.best_params_['max_depth']
+        print(f"Optimal depth for Decision Tree: {best_depth_dtc}")
 
         print("Logging the Decision Tree training memory usage...")
 
@@ -361,6 +372,9 @@ if __name__ == "__main__":
     print(f"Decision Tree Training Memory: {round(dtc_training_memory, 2)} Mb")
     print(f"Decision Tree Prediction Memory: {round(dtc_prediction_memory, 2)} Mb")
 
+    print("Decision Tree Depth", dtc.get_depth())
+    print("Random Forest Max Decision Tree Depth", max([rf.estimators_[i].get_depth() for i in range(100)]))
+'''
     # Creating lists to store the model sizes, training times, prediction accuracies, predictions per second, training memories, and prediction memories
     model_sizes = [rf_model_size, dtc_model_size]
     training_times = [rf_train_time, dtc_train_time]
@@ -429,7 +443,5 @@ if __name__ == "__main__":
 
     # Plot first decision tree in the random forest classifier
     tree.plot_tree(rf.estimators_[0], filled = True, fontsize = 6)
-    plt.show()
-
-    # Creating lists for model accuracies for each image class
+    plt.show()'''
     
