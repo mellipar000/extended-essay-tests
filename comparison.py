@@ -1,6 +1,6 @@
 from tensorflow import keras
 import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, ConfusionMatrixDisplay
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -156,11 +156,11 @@ def create_special_bar_graph(ylabel, values, units, fontsize = 'large'):
     # Incrementing the number of subplots
     num_plots += 1
 
-def create_bar_graph(xlabel, ylabel, labels, values, units, fontsize = 'large'):
+def create_bar_graph(xlabel, ylabel, labels, values, units, title, fontsize = 'large'):
     # Creating the bar graph
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.title(ylabel + " vs. " + xlabel)
+    plt.title(title)
     plt.xticks(range(10), labels)
 
     # Annotating the bars with the values
@@ -222,20 +222,16 @@ if __name__ == "__main__":
         print("Training the Random Forest model...")
 
         # Creating an instance of the RandomForestClassifier
-        rf = RandomForestClassifier() #n_jobs = -1
-        grid_search_rf = GridSearchCV(rf, param_grid, cv = 5, n_jobs = -1)
+        rf = RandomForestClassifier(n_jobs = -1, random_state = 0, max_depth = 40)
 
         # Starting a timer for the RandomForestClassifier training
         rf_train_start_time = time.time()
 
         # Training the RandomForestClassifier
-        train_model(grid_search_rf, x_train, y_train)
+        train_model(rf, x_train, y_train)
 
         # Ending the RandomForestClassifier training timer
         rf_train_time = time.time() - rf_train_start_time
-
-        best_depth_rf = grid_search_rf.best_params_['max_depth']
-        print(f"Optimal depth for Random Forest: {best_depth_rf}")
 
         print("Logging the Random Forest training memory usage...")
 
@@ -313,19 +309,15 @@ if __name__ == "__main__":
         print("Training the Decision Tree model...")
 
         # Creating an instance of the DecisionTreeClassifier
-        dtc = DecisionTreeClassifier()
-        grid_search_dtc = GridSearchCV(dtc, param_grid, cv = 5, n_jobs = -1)
+        dtc = DecisionTreeClassifier(random_state = 0, max_depth = 9)
 
         # Starting a timer for the DecisionTreeClassifier training
         dtc_train_start_time = time.time()
 
-        train_model(grid_search_dtc, x_train, y_train)
+        train_model(dtc, x_train, y_train)
 
         # Ending the DecisionTreeClassifier training timer
         dtc_train_time = time.time() - dtc_train_start_time
-
-        best_depth_dtc = grid_search_dtc.best_params_['max_depth']
-        print(f"Optimal depth for Decision Tree: {best_depth_dtc}")
 
         print("Logging the Decision Tree training memory usage...")
 
@@ -374,7 +366,7 @@ if __name__ == "__main__":
 
     print("Decision Tree Depth", dtc.get_depth())
     print("Random Forest Max Decision Tree Depth", max([rf.estimators_[i].get_depth() for i in range(100)]))
-'''
+
     # Creating lists to store the model sizes, training times, prediction accuracies, predictions per second, training memories, and prediction memories
     model_sizes = [rf_model_size, dtc_model_size]
     training_times = [rf_train_time, dtc_train_time]
@@ -411,6 +403,12 @@ if __name__ == "__main__":
     # Labels with index corresponding to the image class
     labels = ["Airplane", "Automobile", "Bird", "Cat", "Deer", "Dog", "Frog", "Horse", "Ship", "Truck"]
 
+    # Creating confusion matrix displays for the random forest and decision tree classifiers
+    dtc_confustion_matrix_display = ConfusionMatrixDisplay(dtc_confusion_matrix, display_labels = labels)
+    dtc_confustion_matrix_display.plot()
+    rf_confustion_matrix_display = ConfusionMatrixDisplay(rf_confusion_matrix, display_labels = labels)
+    rf_confustion_matrix_display.plot()
+
     # Creating lists to store the model accuracies for each image class
     rf_class_accuracies = rf_confusion_matrix.diagonal() / 10
     dtc_class_accuracies = dtc_confusion_matrix.diagonal() / 10
@@ -419,7 +417,7 @@ if __name__ == "__main__":
     plt.figure()
 
     # Creating a bar graph for the random forest classifier
-    create_bar_graph("Image Class", "Accuracy", labels, rf_class_accuracies, '%')
+    create_bar_graph("Image Class", "Accuracy", labels, rf_class_accuracies, '%', "Accuracy vs. Image Class")
 
     # Displaying the bar graph
     plt.show()
@@ -428,14 +426,10 @@ if __name__ == "__main__":
     plt.figure()
 
     # Creating a bar graph for the decision tree classifier
-    create_bar_graph("Image Class", "Accuracy", labels, dtc_class_accuracies, '%')
+    create_bar_graph("Image Class", "Accuracy", labels, dtc_class_accuracies, '%', "Accuracy vs. Image Class")
     
     # Displaying the bar graph
     plt.show()
-
-    # Annotating the bars with the values
-    for index, value in enumerate(rf_class_accuracies):
-        plt.text(index, value / 2, str(round(value, 2)) + '%', ha = 'center', va = 'bottom', fontsize = 'medium', fontweight = 'bold')
 
     # Displaying the decision tree
     tree.plot_tree(dtc, filled = True, fontsize = 6)
@@ -443,5 +437,4 @@ if __name__ == "__main__":
 
     # Plot first decision tree in the random forest classifier
     tree.plot_tree(rf.estimators_[0], filled = True, fontsize = 6)
-    plt.show()'''
-    
+    plt.show()    
