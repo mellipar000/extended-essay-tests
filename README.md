@@ -1,4 +1,4 @@
-# extended-essay-tests
+# Machine Learning Image Recognition Comparison
 This repository contains tests to compare the Random Forest and Decision Tree machine learning algorithms in the task of image classification.
 Be patient with the first execution of the script as it takes around 3-8 minutes to run on the first execution as it must train both models.
 Upon subsequent executions, the runtime is significantly less as the models and corresponding data are saved to files in the user-specified directory.
